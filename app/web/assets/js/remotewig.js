@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 
 var port = new osc.WebSocketPort({
-	url: "ws://10.0.0.2:8081" // ws://10.0.0.21:8081 in win, ws://10.0.0.2:8081 in mac
+	url: "ws://192.168.1.86:8081" // ws://10.0.0.21:8081 in win, ws://10.0.0.2:8081 in mac
 });
 
 var bitwig = {};
@@ -52,6 +52,10 @@ port.on("message", function(oscMessage) {
 		bitwig.toggle("#dRemoteControls", currentMessage.args[0]);
 	} else if (currentMessage.address == "/application/play") {
 		bitwig.toggle("#aPlay", currentMessage.args[0]);
+	} else if (currentMessage.address == "/tempo/set" || currentMessage.address == "/tempo") {
+		bitwig.renderTempo(currentMessage.args[0]);
+	} else if (currentMessage.address == "/metronome") {
+		bitwig.toggle("#metronome", currentMessage.args[0]);
 	}
 
 });
@@ -72,6 +76,29 @@ var sendManual = function() {
 		address: "/track",
 		args: bitwig.localState
 	});
+};
+
+var sendTempo = function(bpm, absolute = false) {
+	port.send({
+		address: "/tempo/set",
+		args: [bpm, absolute]
+	});
+};
+
+var getTempo = function() {
+  const banana = 100;
+	port.send({
+		address: "/tempo",
+    args: banana
+	});
+};
+
+var getMetronome = function() {
+  const banana = "green";
+  port.send({
+    address: "/metronome",
+    args: banana
+  });
 };
 
 bitwig.currentTrackName = function(oscMessage) {
@@ -514,7 +541,16 @@ bitwig.renderRemoteControls = function(oscBundle) {
 	});
 };
 
+bitwig.renderTempo = function(oscMessage) {
+  document.querySelector("#tempoDisplay").value = oscMessage;
+}
+
 bitwig.initControls = function(oscMessage) {
+
+  setTimeout(() => {
+    getTempo();
+    getMetronome();
+  }, 100);
 
 	document.querySelector("#pDevices").addEventListener('click', event => {
 		console.log("pDevices pressed");
@@ -602,6 +638,20 @@ bitwig.initControls = function(oscMessage) {
 		var banana = "metal";
 		port.send({
 			address: "/application/play",
+			args: banana
+		});
+	});
+
+	document.querySelector("#tempoDisplay").addEventListener('input', event => {
+		console.log("tempo value updated");
+		sendTempo(event.target.value, true);
+	});
+
+  document.querySelector("#metronome").addEventListener('click', event => {
+		console.log("metronome pressed");
+		var banana = "cyan";
+		port.send({
+			address: "/metronome/toggle",
 			args: banana
 		});
 	});

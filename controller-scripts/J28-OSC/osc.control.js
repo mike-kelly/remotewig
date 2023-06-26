@@ -6,6 +6,9 @@ load("TrackHandler.js");
 load("DeviceHandler.js");
 load("RemoteControlHandler.js");
 
+const MIN_TEMPO = 10;
+const MAX_TEMPO = 666;
+
 // Remove this if you want to be able to use deprecated methods without causing script to stop.
 // This is useful during development.
 host.setShouldFailOnDeprecatedUse(true);
@@ -83,6 +86,8 @@ function init() {
 		' - ' + host.getHostProduct() +
 		' - ' + host.getHostVersion()
 	);
+
+  println("MK version of J28");
 
 	var transport = host.createTransport();
 	var position = transport.getPosition();
@@ -241,6 +246,42 @@ function init() {
 		function(c, msg) {
 			var pageIndex = msg.getFloat(0);
 			remoteControlHandler.selectPage(pageIndex);
+		});
+
+	as.registerMethod('/tempo',
+		',f',
+		'Get Current Tempo',
+		function(c, msg) {
+			transportHandler.getTempo();
+		});
+
+	as.registerMethod('/tempo/set',
+		'*',
+		'Set Current Tempo',
+		function(c, msg) {
+			const args = msg.getArguments();
+			var newTempo = parseFloat(args[0]);
+      var isAbsValue = Boolean(args[1]);
+      println('Incoming tempo ' + newTempo);
+      println('Incoming tempo is absolute: ' + isAbsValue);
+      if (!isAbsValue || (isAbsValue && newTempo >= MIN_TEMPO && newTempo <= MAX_TEMPO)) {
+        transportHandler.setTempo(newTempo, isAbsValue);	        	
+      }
+			
+		});
+
+    as.registerMethod('/metronome',
+		',s',
+		'Get Metronome Status',
+		function(c, msg) {
+			transportHandler.getMetronome();
+		});
+
+    as.registerMethod('/metronome/toggle',
+		',s',
+		'Metronome Toggle',
+		function(c, msg) {
+			transportHandler.toggleMetronome();
 		});
 
 	// as.registerMethod('/track',
