@@ -20,11 +20,54 @@ body {
 	font-weight: 800;
 }
 
+button {
+  font-family: "Poppins", sans-serif;
+}
+
 #toolbar {
 	padding: 0.5em 0.5em 0.75em 0.5em;
 }
 
+.inline-text {
+  padding-left: 12px;
+  display: inline-block;
+}
+
 #messageArea {
+  width: 100%;
+  height: 160px;
+}
+
+#messageArea > button {
+  font-family: monospace;
+  height:80px;
+  background-color: #ccc;
+  width:10%;
+  border:none;
+  font-size: 36px;
+  border-right: 1px solid #6e6e6e;
+  border-bottom: 1px solid #6e6e6e;
+  vertical-align: middle;
+}
+
+#tempoDisplay {
+  font-family: monospace;
+  margin: 15px;
+  padding: 10px;
+  height: 56px;
+  font-size: 36px;
+  width: 150px;
+  vertical-align: middle;
+}
+
+.msg-button {
+  margin: 15px 10px;
+  font-size: 36px;
+}
+
+#butSend {
+  float: right;
+  font-size: 18px !important;
 }
 
 #udpStatus {
@@ -35,15 +78,15 @@ body {
 }
 
 #message {
+  margin: 0;
 	color: #fff;
 	background-color: #aaa;
 	padding-left: 0.75em;
-	padding-top: 1em;
-	padding-bottom: 1em;
-	margin-bottom: 20px;
+	padding-top: 6px;
+	padding-bottom: 6px;
 	clear:both;
-	font-family: monospace;
 	font-size: 16px;
+  margin-bottom: 6px;
 }
 
 #tracks button {
@@ -71,12 +114,12 @@ body {
 #bwControls {
 	position: fixed;
 	bottom: 0;
-	background-color: red;
+	background-color: rgb(0, 0, 0);
 	width: 100%;
-	height:160px;
+	height:320px;
 }
 
-#bwControls button {
+#bwControls > #toggles > button {
 	height:80px;
 	background-color: #ccc;
 	width:20%;
@@ -128,7 +171,7 @@ body {
 #bwRemoteControls {
 	width:20%;
 	float:right;
-	height: 480px;
+	height: calc(100vh - 400px);
 	overflow-y: scroll;
 /*	position:absolute;
 	width:100%;*/
@@ -228,15 +271,4 @@ body {
 
 #devices button:nth-child(odd) {
 /*	border-right: 1px solid #2e2e2e;*/
-}
-
-#butSend {
-	font-family: monospace;
-	font-size: 16px;
-	padding:14px 10px;
-	border:none;
-	width:200px;
-	margin: 0 auto;
-	display:block;
-	background-color: #ccc;
 }
