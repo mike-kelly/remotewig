@@ -65,7 +65,7 @@ button {
   font-size: 36px;
 }
 
-#butSend {
+#butSend, #metronome {
   float: right;
   font-size: 18px !important;
 }
