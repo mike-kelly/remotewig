@@ -46,17 +46,18 @@ TransportHandler.prototype.applicationPositionUpdate = function() {
 TransportHandler.prototype.setTempo = function(bpm, absolute) {
 	const oldTempo = this.transport.tempo();
   let newTempo;
-  println('Previous tempo value is: ' + oldTempo.value().getRaw());
+  println('previous tempo value is: ' + oldTempo.value().getRaw());
   if (absolute) {
     this.transport.tempo().setRaw(bpm);
     newTempo = bpm;
   } else {
-    this.transport.increaseTempo(bpm, MAX_TEMPO - MIN_TEMPO);
-    newTempo = oldTempo.value().getRaw() + bpm;
+		println('change bpm by: ' + bpm);
+		newTempo = oldTempo.value().getRaw() + bpm;
+		this.transport.tempo().setRaw(newTempo);
   }
   // if we read the new tempo immediately there can be problems due to lack of async implementation
   // so assume success, do the calculation ourselves and return it, rounded to 2 decimal points
-  println('Updated tempo value is: ' + roundFloatToTwoPlaces(newTempo));
+  println('ppdated tempo value is: ' + roundFloatToTwoPlaces(newTempo));
   try {
 		sender.sendMessage('/tempo/set', roundFloatToTwoPlaces(newTempo));
 	} catch (err) {
