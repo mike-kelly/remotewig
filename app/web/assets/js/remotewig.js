@@ -1,19 +1,37 @@
+const bitwig = {};
+bitwig.localState = [];
 document.addEventListener("DOMContentLoaded", function () {
   if (window.navigator.standalone) {
     document.getElementById("messageArea").style.display = "none";
   }
   bitwig.initControls();
+
+  setTimeout(() => {
+    bitwig.getTempo();
+    bitwig.getMetronome();
+  }, 100);
 });
 
 const port = new osc.WebSocketPort({
   url: "ws://192.168.1.86:8081" // ws://10.0.0.21:8081 in win, ws://10.0.0.2:8081 in mac
 });
 
-const bitwig = {};
-bitwig.localState = [];
+const logLocalState = function() {
+  console.log(bitwig.localState[0]);
+  console.log(bitwig.localState[1]);
+  console.log(bitwig.localState[2]);
+  console.log(bitwig.localState[3]);
+}
+
+const sendOSCManual = function () {
+  port.send({
+    address: "/track",
+    args: bitwig.localState
+  });
+};
 
 port.on("bundle", function (oscBundle) {
-  console.log("bundle received..." + oscBundle.packets[0].address);
+  console.log("bundle received: " + oscBundle.packets[0].address);
 
   if (oscBundle.packets[0].address === "/track/position") {
     bitwig.renderTrackInfo(oscBundle);
@@ -72,21 +90,14 @@ bitwig.toggle = function (button, onOff) {
   }
 };
 
-const sendManual = function () {
-  port.send({
-    address: "/track",
-    args: bitwig.localState
-  });
-};
-
-const sendTempo = function (bpm, absolute = false) {
+bitwig.sendTempo = function (bpm, absolute = false) {
   port.send({
     address: "/tempo/set",
     args: [bpm, absolute]
   });
 };
 
-const getTempo = function () {
+bitwig.getTempo = function () {
   const placeholder = 100;
   port.send({
     address: "/tempo",
@@ -94,7 +105,7 @@ const getTempo = function () {
   });
 };
 
-const getMetronome = function () {
+bitwig.getMetronome = function () {
   const placeholder = "green";
   port.send({
     address: "/metronome",
@@ -445,7 +456,6 @@ bitwig.renderRemoteControls = function (oscBundle) {
   }
 
   pages.forEach(function (value, index) {
-
     const currentPage = value.args;
     isActive = currentPage[1];
 
@@ -470,7 +480,6 @@ bitwig.renderRemoteControls = function (oscBundle) {
         item.classList.remove("pageActive");
       });
       event.target.classList.add("pageActive");
-
       const selectedPage = parseInt(event.target.getAttribute("data-page"));
       port.send({
         address: "/remote-controls/select",
@@ -485,19 +494,7 @@ bitwig.renderTempo = function (oscMessage) {
   document.querySelector("#tempoDisplay").value = oscMessage;
 }
 
-const logLocalState = function() {
-  console.log(bitwig.localState[0]);
-  console.log(bitwig.localState[1]);
-  console.log(bitwig.localState[2]);
-  console.log(bitwig.localState[3]);
-}
-
 bitwig.initControls = function () {
-
-  setTimeout(() => {
-    getTempo();
-    getMetronome();
-  }, 100);
 
   document.querySelector("#pDevices").addEventListener('click', event => {
     console.log("pDevices pressed");
@@ -589,9 +586,29 @@ bitwig.initControls = function () {
     });
   });
 
+  document.querySelector("#tempoMinusTen").addEventListener('click', event => {
+    console.log("tempo - 10");
+    bitwig.sendTempo(-10, false);
+  });
+
+  document.querySelector("#tempoMinusOne").addEventListener('click', event => {
+    console.log("tempo - 1");
+    bitwig.sendTempo(-1, false);
+  });
+
+  document.querySelector("#tempoPlusOne").addEventListener('click', event => {
+    console.log("tempo + 1");
+    bitwig.sendTempo(1, false);
+  });
+
+  document.querySelector("#tempoPlusTen").addEventListener('click', event => {
+    console.log("tempo + 10");
+    bitwig.sendTempo(10, false);
+  });
+
   document.querySelector("#tempoDisplay").addEventListener('input', event => {
     console.log("tempo value updated");
-    sendTempo(event.target.value, true);
+    bitwig.sendTempo(event.target.value, true);
   });
 
   document.querySelector("#metronome").addEventListener('click', event => {

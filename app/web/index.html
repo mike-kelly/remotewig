@@ -32,12 +32,12 @@
       <div id="messageArea">
         <div id="message">Select a track</div>
         <label id="tempoLabel" for="tempoDisplay">Tempo</label>
-        <button id="tempoMinusTen" class="msg-button" onclick="sendTempo(-10)">-10</button>
-        <button id="tempoMinusOne" class="msg-button" onclick="sendTempo(-1)">-1</button>
+        <button id="tempoMinusTen" class="msg-button">-10</button>
+        <button id="tempoMinusOne" class="msg-button">-1</button>
         <input id="tempoDisplay" class="msg-button" type="text" value="100">
-        <button id="tempoPlusOne" class="msg-button" onclick="sendTempo(1)">+1</button>
-        <button id="tempoPlusTen" class="msg-button" onclick="sendTempo(10)">+10</button>
-        <button id="butSend" class="msg-button" onclick="sendManual()">Send OSC</button>
+        <button id="tempoPlusOne" class="msg-button">+1</button>
+        <button id="tempoPlusTen" class="msg-button">+10</button>
+        <button id="sendOSC" class="msg-button" onclick="sendOSCManual()">Send OSC</button>
         <button id="metronome" class="msg-button">Metronome</button>
       </div>
 
