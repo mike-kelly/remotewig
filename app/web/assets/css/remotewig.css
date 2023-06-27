@@ -22,6 +22,10 @@ body {
 
 button {
   font-family: "Poppins", sans-serif;
+	cursor: pointer;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 
 #toolbar {
@@ -32,16 +36,16 @@ button {
   padding-left: 12px;
 }
 
-#messageArea {
+#transportControls {
   width: 100%;
   height: 160px;
 }
 
-#messageArea > button {
+#transportControls > button {
   font-family: monospace;
   height:80px;
   background-color: #ccc;
-  width:10%;
+  width:8%;
   border:none;
   font-size: 36px;
   border-right: 1px solid #6e6e6e;
@@ -59,7 +63,7 @@ button {
   padding: 10px;
   height: 56px;
   font-size: 36px;
-  width: 150px;
+  width: 100px;
   vertical-align: middle;
 }
 
@@ -142,7 +146,7 @@ button {
 	border-right:none;
 }
 
-#bwControls > #messageArea > button:nth-child(8) {
+#bwControls > #transportControls > button:nth-child(8) {
 	margin-right: 15px;
 }
 
