@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", function () {
   setTimeout(() => {
     bitwig.getTempo();
     bitwig.getMetronome();
+    bitwig.selectFirstTrack();
   }, 100);
 });
 
@@ -98,6 +99,13 @@ bitwig.toggle = function (button, onOff) {
   } else {
     el.classList.remove("bActive");
   }
+};
+
+bitwig.selectFirstTrack = function () {
+  port.send({
+    address: "/track/select",
+    args: [0]
+  });
 };
 
 bitwig.sendTempo = function (bpm, absolute = false) {

@@ -88,11 +88,6 @@ function init() {
 	remoteControlHandler = new RemoteControlHandler(cursorDevice.createCursorRemoteControlsPage(8));
 	transportHandler = new TransportHandler(host.createTransport());
 
-
-	host.scheduleTask (function() {
-		cursorTrack.selectFirst();
-		}, 1000);
-
 	println("initialized" +
 		' - ' + host.getHostVendor() +
 		' - ' + host.getHostProduct() +
@@ -136,7 +131,6 @@ function init() {
 		function(c, msg) {
 			const trackPosition = msg.getFloat(0);
 			trackHandler.selectTrack(trackPosition);
-
 		});
 
 	as.registerMethod('/device/instrument/select',
@@ -145,7 +139,6 @@ function init() {
 		function(c, msg) {
 			const chainIndex = msg.getFloat(0);
 			deviceHandler.selectChain(chainIndex);
-
 		});
 
 	as.registerMethod('/panel/devices',

@@ -1,10 +1,8 @@
 function TrackHandler(trackbank, cursorTrack) {
 	this.trackbank = trackbank;
 	this.cursorTrack = cursorTrack;
-	this.devicesAmount = [];
 
 	for (let i = 0; i < this.trackbank.getSizeOfBank(); i++) {
-
 		const track = this.trackbank.getItemAt(i);
 		const vol = track.volume();
 		vol.markInterested();
@@ -15,7 +13,6 @@ function TrackHandler(trackbank, cursorTrack) {
 
 		const color = track.color();
 		color.markInterested();
-
 	}
 
 	this.trackbank.followCursorTrack(this.cursorTrack);
@@ -25,9 +22,6 @@ function TrackHandler(trackbank, cursorTrack) {
 }
 
 TrackHandler.prototype.updateLocalState = function() {
-	// localState[0] = trackHandler.cursorTrack.position().get();
-	// println("track POSITION is: " + localState[0]);
-
 	const cursorTrackName = this.cursorTrack.name().get();
 	for (let i = 0; i < trackHandler.trackbank.getSizeOfBank(); i++) {
 
@@ -36,8 +30,7 @@ TrackHandler.prototype.updateLocalState = function() {
 
 		if(cursorTrackName == trackName){
 			localState[0] = i;
-		} 
-
+		}
 	}
 
 	host.scheduleTask(function() {
