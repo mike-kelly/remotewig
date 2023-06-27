@@ -1,4 +1,9 @@
 const bitwig = {};
+const WEB_SOCKET_ADDRESS = '127.0.0.1';
+
+// WEB_SOCKET_PORT value MUST match that of variable of same name in app/index.js
+const WEB_SOCKET_PORT = 8089;
+
 bitwig.localState = [];
 document.addEventListener("DOMContentLoaded", function () {
   if (window.navigator.standalone) {
@@ -13,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 const port = new osc.WebSocketPort({
-  url: "ws://192.168.1.86:8081" // ws://10.0.0.21:8081 in win, ws://10.0.0.2:8081 in mac
+  url: `ws://${WEB_SOCKET_ADDRESS}:${WEB_SOCKET_PORT}`
 });
 
 const logLocalState = function() {
@@ -22,13 +27,6 @@ const logLocalState = function() {
   console.log(bitwig.localState[2]);
   console.log(bitwig.localState[3]);
 }
-
-const sendOSCManual = function () {
-  port.send({
-    address: "/track",
-    args: bitwig.localState
-  });
-};
 
 port.on("bundle", function (oscBundle) {
   console.log("bundle received: " + oscBundle.packets[0].address);
@@ -85,6 +83,13 @@ port.on("message", function (oscMessage) {
             break;
     }
 });
+
+const sendOSCManual = function () {
+  port.send({
+    address: "/track",
+    args: bitwig.localState
+  });
+};
 
 bitwig.toggle = function (button, onOff) {
   const el = document.querySelector(button);
