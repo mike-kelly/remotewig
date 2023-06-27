@@ -49,6 +49,10 @@ button {
   vertical-align: middle;
 }
 
+#positionBeatsDisplay {
+	font-family: monospace;
+}
+
 #tempoDisplay {
   font-family: monospace;
   margin: 15px;
@@ -60,11 +64,15 @@ button {
 }
 
 .msg-button {
-  margin: 15px 10px;
+  margin: 15px 8px;
   font-size: 36px;
 }
 
-#sendOSC, #metronome {
+.msg-button:last-child {
+	margin-right: 15px;
+}
+
+#aMetronome, #aStopAndZero, #aPlay {
   float: right;
   font-size: 18px !important;
 }
@@ -77,12 +85,12 @@ button {
 }
 
 #message {
+	display: flex;
+	justify-content: space-between;
   margin: 0;
 	color: #fff;
 	background-color: #aaa;
-	padding-left: 0.75em;
-	padding-top: 6px;
-	padding-bottom: 6px;
+	padding: 6px 0.75em;
 	clear:both;
 	font-size: 16px;
   margin-bottom: 6px;
@@ -133,12 +141,9 @@ button {
 #bwControls button:nth-child(10) {
 	border-right:none;
 }
-#bwControls button:nth-child(6),
-#bwControls button:nth-child(7),
-#bwControls button:nth-child(8),
-#bwControls button:nth-child(9),
-#bwControls button:nth-child(10) {
-	border-bottom: none;
+
+#bwControls > #messageArea > button:nth-child(8) {
+	margin-right: 15px;
 }
 
 .bActive {

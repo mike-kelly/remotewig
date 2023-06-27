@@ -46,8 +46,10 @@ port.on("bundle", function (oscBundle) {
 
 port.on("message", function (oscMessage) {
   const currentMessage = oscMessage;
-  console.log("bitwig.parseMessage: " + currentMessage.address);
-  console.log(currentMessage.args);
+  if (currentMessage.address !== '/position/beats') {
+    console.log("bitwig.parseMessage: " + currentMessage.address);
+    console.log(currentMessage.args);
+  }
 
     switch (currentMessage.address) {
         case "/panel/meter":
@@ -75,8 +77,11 @@ port.on("message", function (oscMessage) {
         case "/tempo":
             bitwig.renderTempo(currentMessage.args[0]);
             break;
+        case "/position/beats":
+            bitwig.renderPositionBeats(currentMessage.args[0]);
+            break;
         case "/metronome":
-            bitwig.toggle("#metronome", currentMessage.args[0]);
+            bitwig.toggle("#aMetronome", currentMessage.args[0]);
             break;
     }
 });
@@ -380,6 +385,10 @@ bitwig.renderTrackInfo = function (oscBundle) {
 
 };
 
+bitwig.renderPositionBeats = function (oscMessage) {
+  document.querySelector("#positionBeatsDisplay").textContent = oscMessage;
+}
+
 bitwig.renderSlotDevices = function (oscBundle) {
   console.log(oscBundle);
   // const deviceSlotDevicesReversed = oscBundle.packets;
@@ -577,6 +586,15 @@ bitwig.initControls = function () {
     });
   });
 
+  document.querySelector("#aStopAndZero").addEventListener('click', event => {
+    console.log("aStopAndZero pressed");
+    const placeholder = "metal";
+    port.send({
+      address: "/application/stop",
+      args: placeholder
+    });
+  });
+
   document.querySelector("#aPlay").addEventListener('click', event => {
     console.log("aPlay pressed");
     const placeholder = "metal";
@@ -611,7 +629,7 @@ bitwig.initControls = function () {
     bitwig.sendTempo(event.target.value, true);
   });
 
-  document.querySelector("#metronome").addEventListener('click', event => {
+  document.querySelector("#aMetronome").addEventListener('click', event => {
     console.log("metronome pressed");
     const placeholder = "cyan";
     port.send({

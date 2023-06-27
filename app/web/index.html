@@ -30,30 +30,14 @@
     <div id="bwControls">
 
       <div id="messageArea">
-        <div id="message">Select a track</div>
+        <div id="message"><span>Select a track</span><span id="positionBeatsDisplay">0</span></div>
         <label id="tempoLabel" for="tempoDisplay">Tempo</label>
         <button id="tempoMinusTen" class="msg-button">-10</button>
         <button id="tempoMinusOne" class="msg-button">-1</button>
         <input id="tempoDisplay" class="msg-button" type="text" value="100">
         <button id="tempoPlusOne" class="msg-button">+1</button>
         <button id="tempoPlusTen" class="msg-button">+10</button>
-        <button id="sendOSC" class="msg-button" onclick="sendOSCManual()">Send OSC</button>
-        <button id="metronome" class="msg-button">Metronome</button>
-      </div>
-
-      <div id="toggles">
-        <button id="pDevices">Devices</button>
-        <button id="pNotes">Notes</button>
-        <button id="pInspector">Inspector</button>
-        <button id="pMeter">Meter</button>
-        <button id="pIo">IO</button>
-
-        <button id="dToggle">Enabled</button>
-        <button id="dDetail">Detail</button>
-        <button id="dExpanded">Expanded</button>
-        <button id="dRemoteControls">Remote Controls</button>
-
-        <button id="aPlay">
+        <button id="aPlay" class="msg-button">
           <svg id="Capa_1"
                xmlns="http://www.w3.org/2000/svg"
                x="0px"
@@ -68,6 +52,23 @@
               </g>
           </svg>
         </button>
+        <button id="aStopAndZero" class="msg-button">Stop/Zero</button>
+        <button id="aMetronome" class="msg-button">Metronome</button>
+      </div>
+
+      <div id="toggles">
+        <button id="pDevices">Devices</button>
+        <button id="pNotes">Notes</button>
+        <button id="pInspector">Inspector</button>
+        <button id="pMeter">Meter</button>
+        <button id="pIo">IO</button>
+
+        <button id="dToggle">Enabled</button>
+        <button id="dDetail">Detail</button>
+        <button id="dExpanded">Expanded</button>
+        <button id="dRemoteControls">Remote Controls</button>
+        <button id="sendOSC" onclick="sendOSCManual()">Send OSC</button>
+
       </div>
 
     </div>
