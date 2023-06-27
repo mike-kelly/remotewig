@@ -4,43 +4,61 @@ function TransportHandler(transport) {
 	this.transport.isPlaying().markInterested();
 	this.transport.isPlaying().addValueObserver(applicationPlayObserver);
   this.transport.tempo().markInterested();
+	this.transport.getPosition().addValueObserver(applicationPositionObserver);
 }
 
 TransportHandler.prototype.applicationPlay = function() {
 	this.transport.play();
 };
 
-TransportHandler.prototype.applicationPlayUpdate = function() {
-	var onOff = this.transport.isPlaying().get();
+TransportHandler.prototype.applicationStopAndZeroPosition = function() {
+	println('Stopping bitwig and zeroing play position');
+	this.transport.stop();
+};
 
+TransportHandler.prototype.applicationPlayUpdate = function() {
+	const onOff = this.transport.isPlaying().get();
+	println('bitwig is playing: ' + onOff);
 	println("this.cursorDevice.isRemoteControlsSectionVisible ().get(): " + onOff);
-	var oscArgs = [];
+	const oscArgs = [];
 	oscArgs[0] = onOff;
 
 	try {
 		sender.sendMessage('/application/play', oscArgs);
 	} catch (err) {
 		println("error sending level: " + err);
-	};
+	}
+};
+
+TransportHandler.prototype.applicationPositionUpdate = function() {
+	const position = this.transport.getPosition().getFormatted();
+	// println('bitwig play position: ' + position);
+	const oscArgs = [];
+	oscArgs[0] = position;
+
+	try {
+		sender.sendMessage('/position/beats', oscArgs);
+	} catch (err) {
+		println("error sending position: " + err);
+	}
 };
 
 TransportHandler.prototype.setTempo = function(bpm, absolute) {
 	const oldTempo = this.transport.tempo();
-  let newTempo = oldTempo;
+  let newTempo;
   println('Previous tempo value is: ' + oldTempo.value().getRaw());
   if (absolute) {
     this.transport.tempo().setRaw(bpm);
     newTempo = bpm;
   } else {
-    this.transport.increaseTempo(bpm, 647);
+    this.transport.increaseTempo(bpm, MAX_TEMPO - MIN_TEMPO);
     newTempo = oldTempo.value().getRaw() + bpm;
   }
   // if we read the new tempo immediately there can be problems due to lack of async implementation
-  // so just do the calculation ourselves and return it
-  // round to 2 decimal points
-  println('Updated tempo value is: ' + Math.round(newTempo * 100) / 100);
+  // so assume success, do the calculation ourselves and return it, rounded to 2 decimal points
+  println('Updated tempo value is: ' + roundFloatToTwoPlaces(newTempo));
   try {
-		sender.sendMessage('/tempo/set', Math.round(newTempo * 100) / 100);
+		sender.sendMessage('/tempo/set', roundFloatToTwoPlaces(newTempo));
 	} catch (err) {
 		println("error sending tempo: " + err);
 	}
@@ -48,9 +66,9 @@ TransportHandler.prototype.setTempo = function(bpm, absolute) {
 
 TransportHandler.prototype.getTempo = function() {
 	const tempo = this.transport.tempo();
-  println('Current tempo value is: ' + Math.round(tempo.value().getRaw() * 100 / 100));
+  println('Current tempo value is: ' + roundFloatToTwoPlaces(tempo.value().getRaw()));
   try {
-		sender.sendMessage('/tempo', Math.round(tempo.value().getRaw() * 100 / 100));
+		sender.sendMessage('/tempo', roundFloatToTwoPlaces(tempo.value().getRaw()));
 	} catch (err) {
 		println("error sending tempo: " + err);
 	}
@@ -73,3 +91,7 @@ TransportHandler.prototype.toggleMetronome = function() {
     println("error sending metronome: " + err);
   }
 };
+
+const roundFloatToTwoPlaces = function(float) {
+	return Math.round(float * 100) / 100;
+}
