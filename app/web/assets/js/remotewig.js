@@ -1,168 +1,158 @@
-document.addEventListener("DOMContentLoaded", function() {
-	if (window.navigator.standalone) {
-		document.getElementById("messageArea").style.display = "none";
-	}
-	bitwig.initControls();
+document.addEventListener("DOMContentLoaded", function () {
+  if (window.navigator.standalone) {
+    document.getElementById("messageArea").style.display = "none";
+  }
+  bitwig.initControls();
 });
 
-var port = new osc.WebSocketPort({
-	url: "ws://192.168.1.86:8081" // ws://10.0.0.21:8081 in win, ws://10.0.0.2:8081 in mac
+const port = new osc.WebSocketPort({
+  url: "ws://192.168.1.86:8081" // ws://10.0.0.21:8081 in win, ws://10.0.0.2:8081 in mac
 });
 
-var bitwig = {};
+const bitwig = {};
 bitwig.localState = [];
 
-port.on("bundle", function(oscBundle) {
+port.on("bundle", function (oscBundle) {
+  console.log("bundle received..." + oscBundle.packets[0].address);
 
-	console.log("bundle received..." + oscBundle.packets[0].address);
-
-	if (oscBundle.packets[0].address == "/track/position") {
-		bitwig.renderTrackInfo(oscBundle);
-	} else if (oscBundle.packets[0].address == "/track/render") {
-		bitwig.renderTracks(oscBundle);
-	} else if (oscBundle.packets[0].address == "/device-slot/devices") {
-		bitwig.renderSlotDevices(oscBundle);
-	} else if (oscBundle.packets[0].address == "/remote-controls/pages") {
-		bitwig.renderRemoteControls(oscBundle);
-	}
-
-	// $("#message").text(JSON.stringify(oscMessage, undefined, 2));
-	// bitwig.parseMessage(oscMessage);
+  if (oscBundle.packets[0].address === "/track/position") {
+    bitwig.renderTrackInfo(oscBundle);
+  } else if (oscBundle.packets[0].address === "/track/render") {
+    bitwig.renderTracks(oscBundle);
+  } else if (oscBundle.packets[0].address === "/device-slot/devices") {
+    bitwig.renderSlotDevices(oscBundle);
+  } else if (oscBundle.packets[0].address === "/remote-controls/pages") {
+    bitwig.renderRemoteControls(oscBundle);
+  }
 });
 
+port.on("message", function (oscMessage) {
+  const currentMessage = oscMessage;
+  console.log("bitwig.parseMessage: " + currentMessage.address);
+  console.log(currentMessage.args);
 
-port.on("message", function(oscMessage) {
-	// $("#message").text(JSON.stringify(oscMessage, undefined, 2));
-
-	var currentMessage = oscMessage;
-	console.log(">> bitwig.parseMessage: " + currentMessage.address);
-	console.log(currentMessage.args);
-
-	if (currentMessage.address == "/panel/meter") {
-		bitwig.toggle("#pMeter", currentMessage.args[0]);
-	} else if (currentMessage.address == "/panel/io") {
-		bitwig.toggle("#pIo", currentMessage.args[0]);
-	} else if (currentMessage.address == "/device/toggle") {
-		bitwig.toggle("#dToggle", currentMessage.args[0]);
-	} else if (currentMessage.address == "/device/detail") {
-		bitwig.toggle("#dDetail", currentMessage.args[0]);
-	} else if (currentMessage.address == "/device/expanded") {
-		bitwig.toggle("#dExpanded", currentMessage.args[0]);
-	} else if (currentMessage.address == "/device/remote-controls") {
-		bitwig.toggle("#dRemoteControls", currentMessage.args[0]);
-	} else if (currentMessage.address == "/application/play") {
-		bitwig.toggle("#aPlay", currentMessage.args[0]);
-	} else if (currentMessage.address == "/tempo/set" || currentMessage.address == "/tempo") {
-		bitwig.renderTempo(currentMessage.args[0]);
-	} else if (currentMessage.address == "/metronome") {
-		bitwig.toggle("#metronome", currentMessage.args[0]);
-	}
-
+    switch (currentMessage.address) {
+        case "/panel/meter":
+            bitwig.toggle("#pMeter", currentMessage.args[0]);
+            break;
+        case "/panel/io":
+            bitwig.toggle("#pIo", currentMessage.args[0]);
+            break;
+        case "/device/toggle":
+            bitwig.toggle("#dToggle", currentMessage.args[0]);
+            break;
+        case "/device/detail":
+            bitwig.toggle("#dDetail", currentMessage.args[0]);
+            break;
+        case "/device/expanded":
+            bitwig.toggle("#dExpanded", currentMessage.args[0]);
+            break;
+        case "/device/remote-controls":
+            bitwig.toggle("#dRemoteControls", currentMessage.args[0]);
+            break;
+        case "/application/play":
+            bitwig.toggle("#aPlay", currentMessage.args[0]);
+            break;
+        case "/tempo/set":
+        case "/tempo":
+            bitwig.renderTempo(currentMessage.args[0]);
+            break;
+        case "/metronome":
+            bitwig.toggle("#metronome", currentMessage.args[0]);
+            break;
+    }
 });
 
-bitwig.toggle = function(button, onOff) {
-
-	var el = document.querySelector(button);
-	if (onOff == true) {
-		el.classList.add("bActive");
-	} else {
-		el.classList.remove("bActive");
-	};
-
+bitwig.toggle = function (button, onOff) {
+  const el = document.querySelector(button);
+  if (onOff == true) {
+    el.classList.add("bActive");
+  } else {
+    el.classList.remove("bActive");
+  }
 };
 
-var sendManual = function() {
-	port.send({
-		address: "/track",
-		args: bitwig.localState
-	});
-};
-
-var sendTempo = function(bpm, absolute = false) {
-	port.send({
-		address: "/tempo/set",
-		args: [bpm, absolute]
-	});
-};
-
-var getTempo = function() {
-  const banana = 100;
-	port.send({
-		address: "/tempo",
-    args: banana
-	});
-};
-
-var getMetronome = function() {
-  const banana = "green";
+const sendManual = function () {
   port.send({
-    address: "/metronome",
-    args: banana
+    address: "/track",
+    args: bitwig.localState
   });
 };
 
-bitwig.currentTrackName = function(oscMessage) {
-
-	console.log(">> bitwig.currentTrackName");
-	console.log(oscMessage.args[0]);
-
-	var currentTrack = oscMessage;
-	var trackName = oscMessage.args[0];
-	var currentTrackEl = document.querySelector("#currentTrack");
-	currentTrackEl.textContent = trackName;
-
+const sendTempo = function (bpm, absolute = false) {
+  port.send({
+    address: "/tempo/set",
+    args: [bpm, absolute]
+  });
 };
 
-bitwig.currentTrackColor = function(oscMessage) {
-
-	console.log(">> bitwig.currentTrackColor");
-	console.log(oscMessage.args[0]);
-	console.log(oscMessage.args[1]);
-	console.log(oscMessage.args[2]);
-
-	var currentTrack = oscMessage;
-	var trackRed = oscMessage.args[0];
-	var trackGreen = oscMessage.args[1];
-	var trackBlue = oscMessage.args[2];
-
-	var strBegin = "rgb(";
-	var strComma = ", ";
-	var strEnd = ")";
-	var strFull = strBegin.concat(trackRed, strComma, trackGreen, strComma, trackBlue, strEnd);
-	console.log(strFull);
-
-	var currentTrackEl = document.querySelector("#currentTrack");
-	currentTrackEl.style.backgroundColor = strFull;
-
+const getTempo = function () {
+  const placeholder = 100;
+  port.send({
+    address: "/tempo",
+    args: placeholder
+  });
 };
 
-bitwig.renderTracks = function(oscBundle) {
+const getMetronome = function () {
+  const placeholder = "green";
+  port.send({
+    address: "/metronome",
+    args: placeholder
+  });
+};
 
-	console.log("them trackz is here...");
+bitwig.currentTrackName = function (oscMessage) {
+  console.log("bitwig.currentTrackName:");
+  console.log(oscMessage.args[0]);
 
-	document.querySelectorAll('.track').forEach(item => {
-		item.remove();
-	});
+  const trackName = oscMessage.args[0];
+  const currentTrackEl = document.querySelector("#currentTrack");
+  currentTrackEl.textContent = trackName;
+};
 
-	console.log(oscBundle.packets[0].args[0]);
+bitwig.currentTrackColor = function (oscMessage) {
+  console.log("bitwig.currentTrackColor:");
+  console.log(oscMessage.args[0]);
+  console.log(oscMessage.args[1]);
+  console.log(oscMessage.args[2]);
 
-	var tracks = oscBundle.packets;
+  const trackRed = oscMessage.args[0];
+  const trackGreen = oscMessage.args[1];
+  const trackBlue = oscMessage.args[2];
 
-	tracks.forEach(function(value, index) {
+  const strBegin = "rgb(";
+  const strComma = ", ";
+  const strEnd = ")";
+  const strFull = strBegin.concat(trackRed, strComma, trackGreen, strComma, trackBlue, strEnd);
+  console.log(strFull);
 
-		var trackName = tracks[index].args[3];
-		var isActive = tracks[index].args[4];
+  const currentTrackEl = document.querySelector("#currentTrack");
+  currentTrackEl.style.backgroundColor = strFull;
+};
 
-		var strFull = bitwig.concatColor(tracks[index].args[0], tracks[index].args[1], tracks[index].args[2]);
+bitwig.renderTracks = function (oscBundle) {
+  console.log("render tracks");
+  document.querySelectorAll('.track').forEach(item => {
+    item.remove();
+  });
 
-		const track = {
-			color: strFull,
-			isActive: isActive,
-			name: trackName,
-			index: index
-		};
+  console.log(oscBundle.packets[0].args[0]);
+  const tracks = oscBundle.packets;
 
-		const markupTrack = `
+  tracks.forEach(function (value, index) {
+    const trackName = tracks[index].args[3];
+    const isActive = tracks[index].args[4];
+    const strFull = bitwig.concatColor(tracks[index].args[0], tracks[index].args[1], tracks[index].args[2]);
+
+    const track = {
+      color: strFull,
+      isActive: isActive,
+      name: trackName,
+      index: index
+    };
+
+    const markupTrack = `
 		<button 
 			class="track${track.isActive ? ' trackActive' : ''}" 
 			data-track-index="${track.index}" 
@@ -171,92 +161,75 @@ bitwig.renderTracks = function(oscBundle) {
 		</button>
 		`;
 
-		var tracksEl = document.querySelector("#tracks");
+    const tracksEl = document.querySelector("#tracks");
+    tracksEl.insertAdjacentHTML("beforeend", markupTrack);
+  });
 
-		tracksEl.insertAdjacentHTML("beforeend", markupTrack);
+  document.querySelectorAll('.track').forEach(item => {
+    item.addEventListener('click', event => {
 
-	});
+      document.querySelectorAll('.track').forEach(item => {
+        item.classList.remove("trackActive");
+      });
+      event.target.classList.add("trackActive");
 
-	document.querySelectorAll('.track').forEach(item => {
-		item.addEventListener('click', event => {
+      const oscArgs = [];
+      oscArgs[0] = parseInt(event.target.getAttribute("data-track-index"));
 
-			document.querySelectorAll('.track').forEach(item => {
-				item.classList.remove("trackActive");
-			});
-			event.target.classList.add("trackActive");
+      port.send({
+        address: "/track/select",
+        args: oscArgs
+      });
 
-			var oscArgs = [];
-			oscArgs[0] = parseInt(event.target.getAttribute("data-track-index"));
-			// console.log("YOOYOYOYOYOY: " + oscArgs[0]);
-
-			port.send({
-				address: "/track/select",
-				args: oscArgs
-			});
-
-		});
-	});
+    });
+  });
 
 };
 
-bitwig.concatColor = function(colorRed, colorGreen, colorBlue) {
-
-	var trackRed = colorRed;
-	var trackGreen = colorGreen;
-	var trackBlue = colorBlue;
-	var strBegin = "rgb(";
-	var strComma = ", ";
-	var strEnd = ")";
-	var strFull = strBegin.concat(trackRed, strComma, trackGreen, strComma, trackBlue, strEnd);
-	console.log(strFull);
-
-	return strFull;
-
+bitwig.concatColor = function (colorRed, colorGreen, colorBlue) {
+  const trackRed = colorRed;
+  const trackGreen = colorGreen;
+  const trackBlue = colorBlue;
+  const strBegin = "rgb(";
+  const strComma = ", ";
+  const strEnd = ")";
+  const strFull = strBegin.concat(trackRed, strComma, trackGreen, strComma, trackBlue, strEnd);
+  console.log(strFull);
+  return strFull;
 };
 
-bitwig.renderTrackInfo = function(oscBundle) {
-	// $("#message").text(JSON.stringify(oscBundle, null, 2));
+bitwig.renderTrackInfo = function (oscBundle) {
+  console.log(oscBundle);
 
-	console.log(oscBundle);
+  const trackPosition = oscBundle.packets[0].args[0];
+  bitwig.localState[0] = trackPosition;
+  console.log("track position is: " + trackPosition);
 
-	var trackPosition = oscBundle.packets[0].args[0];
-	bitwig.localState[0] = trackPosition;
-	console.log("track position is: " + trackPosition);
+  const trackName = oscBundle.packets[1].args[0];
+  console.log("track name is: " + trackName);
+  const currentTrackEl = document.querySelector("#currentTrack");
+  currentTrackEl.textContent = trackName;
 
-	var trackName = oscBundle.packets[1].args[0];
-	console.log("track name is: " + trackName);
-	var currentTrackEl = document.querySelector("#currentTrack");
-	currentTrackEl.textContent = trackName;
+  const trackColor = oscBundle.packets[2];
+  console.log("track color is: " + trackColor);
+  const strFull = bitwig.concatColor(trackColor.args[0], trackColor.args[1], trackColor.args[2]);
+  currentTrackEl.style.backgroundColor = strFull;
 
-	var trackColor = oscBundle.packets[2];
-	console.log("track color is: " + trackColor);
-	var strFull = bitwig.concatColor(trackColor.args[0], trackColor.args[1], trackColor.args[2]);
-	currentTrackEl.style.backgroundColor = strFull;
+  const devices = oscBundle.packets[3].packets;
+  console.log("devices inside this track:");
+  console.log(devices);
 
-	var devices = oscBundle.packets[3].packets;
-	console.log("devices inside this track:");
-	console.log(devices);
+  const devicesEl = document.querySelector("#devices");
+  devicesEl.innerHTML = '';
 
-	// var currentDeviceIndex = devices[0].args[0];
-	// console.log("current device index is:");
-	// console.log(currentDeviceIndex);
+  devices.forEach(function (value, index) {
+    const isActive = value.packets[0].args[1];
+    const device = {
+      name: value.packets[0].args[0],
+      index: index
+    };
 
-	var devicesEl = document.querySelector("#devices");
-	devicesEl.innerHTML = '';
-
-	devices.forEach(function(value, index) {
-
-		// console.log("each device contains:");
-		// console.log(value);
-
-		var isActive = value.packets[0].args[1];
-
-		const device = {
-			name: value.packets[0].args[0],
-			index: index
-		};
-
-		const markupDevice = `
+    const markupDevice = `
 		<div>
 			<button class="device${isActive ? ' deviceActive' : ''}" data-device-index="${device.index}">
 				${device.name}
@@ -265,397 +238,370 @@ bitwig.renderTrackInfo = function(oscBundle) {
 		</div>
 		`;
 
-		devicesEl.insertAdjacentHTML("beforeend", markupDevice);
+    devicesEl.insertAdjacentHTML("beforeend", markupDevice);
+    const nthChild = index + 1;
 
-		var nthChild = index + 1;
+    if (value.packets[1]) {
 
-		if(value.packets[1]){
+      const deviceSlots = value.packets[1].packets;
+      deviceSlots.forEach(function (slotValue, slotIndex) {
 
-			var deviceSlots = value.packets[1].packets;
-			// console.log("device slots:");
-			// console.log(deviceSlots);
+        const selectorString = "#devices div:nth-child(" + nthChild + ") span";
+        const selector = document.querySelector(selectorString);
 
-			deviceSlots.forEach(function(slotValue, slotIndex) {
+        const slot = {
+          deviceSlot: slotValue.args[0],
+          slotIndex: slotIndex,
+          index: index
+        };
 
-				var selectorString = "#devices div:nth-child(" + nthChild + ") span";
-				var selector = document.querySelector(selectorString);
-				// console.log("selectorString:" + selectorString);
-				// console.log("selector.....: " + selector.childElementCount);
-
-				const slot = {
-					deviceSlot: slotValue.args[0],
-					slotIndex: slotIndex,
-					index: index
-				};
-
-				const markupDeviceSlot = `
+        const markupDeviceSlot = `
 				<button class="deviceSlot" data-slot-name="${slot.deviceSlot}" data-slot-index="${slot.slotIndex}" data-parent-device-index="${slot.index}">
 					${slot.deviceSlot}
 				</button>
 				`;
 
-				selector.insertAdjacentHTML("beforeend", markupDeviceSlot);
+        selector.insertAdjacentHTML("beforeend", markupDeviceSlot);
+      });
+    }
 
-			});
-		}
+    if (index === 0 && value.packets[2]) {
+      const instrChains = value.packets[2].packets;
+      instrChains.forEach(function (instrValue, instrIndex) {
 
-		if(index == 0 && value.packets[2]){
+        const isActive = instrValue.args[1];
+        const selectorString = "#devices div:nth-child(" + nthChild + ")";
+        const selector = document.querySelector(selectorString);
 
-			var instrChains = value.packets[2].packets;
-			// console.log("instrument chains:");
-			// console.log(instrChains);
+        const instr = {
+          instrName: instrValue.args[0],
+          instrIndex: instrIndex,
+          index: index
+        };
 
-			instrChains.forEach(function(instrValue, instrIndex) {
-
-				var isActive = instrValue.args[1];
-				var selectorString = "#devices div:nth-child(" + nthChild + ")";
-				var selector = document.querySelector(selectorString);
-
-				const instr = {
-					instrName: instrValue.args[0],
-					instrIndex: instrIndex,
-					index: index
-				};
-
-				const markupInstr = `
+        const markupInstr = `
 				<button class="instr${isActive ? ' instrActive' : ''}" data-instr-name="${instr.instrName}" data-instr-index="${instr.instrIndex}" data-parent-device-index="${instr.index}">
 					${instr.instrName}
 				</button>
 				`;
 
-				selector.insertAdjacentHTML("beforeend", markupInstr);
+        selector.insertAdjacentHTML("beforeend", markupInstr);
+      });
+    }
+  });
 
-			});
+  document.querySelectorAll('.device').forEach(item => {
+    item.addEventListener('click', event => {
 
-		}
-	});
+      document.querySelectorAll('.device').forEach(item => {
+        item.classList.remove("deviceActive");
+      });
+      document.querySelectorAll('.deviceSlot').forEach(item => {
+        item.classList.remove("slotActive");
+      });
+      event.target.classList.add("deviceActive");
 
-	document.querySelectorAll('.device').forEach(item => {
-		item.addEventListener('click', event => {
+      bitwig.localState[1] = parseInt(event.target.getAttribute("data-device-index"));
+      bitwig.localState[2] = -1;
+      bitwig.localState[3] = -1;
 
-			document.querySelectorAll('.device').forEach(item => {
-				item.classList.remove("deviceActive");
-			});
-			document.querySelectorAll('.deviceSlot').forEach(item => {
-				item.classList.remove("slotActive");
-			});
-			event.target.classList.add("deviceActive");
+      console.log("bitwig.localState prior to osc send");
+      logLocalState();
+      port.send({
+        address: "/track",
+        args: bitwig.localState
+      });
 
-			bitwig.localState[1] = parseInt(event.target.getAttribute("data-device-index"));
-			bitwig.localState[2] = -1;
-			bitwig.localState[3] = -1;
+    });
+  });
 
-			console.log("bitwig.localState prior to osc send");
-			console.log(bitwig.localState[0]);
-			console.log(bitwig.localState[1]);
-			console.log(bitwig.localState[2]);
-			console.log(bitwig.localState[3]);
-			port.send({
-				address: "/track",
-				args: bitwig.localState
-			});
+  document.querySelectorAll('.deviceSlot').forEach(item => {
+    item.addEventListener('click', event => {
 
-		});
-	});
+      document.querySelectorAll('.device').forEach(item => {
+        item.classList.remove("deviceActive");
+      });
+      document.querySelectorAll('.deviceSlot').forEach(item => {
+        item.classList.remove("slotActive");
+      });
+      event.target.classList.add("slotActive");
 
-	document.querySelectorAll('.deviceSlot').forEach(item => {
-		item.addEventListener('click', event => {
+      document.querySelectorAll('.deviceSlotDevice').forEach(item => {
+        item.remove();
+      });
 
-			document.querySelectorAll('.device').forEach(item => {
-				item.classList.remove("deviceActive");
-			});
-			document.querySelectorAll('.deviceSlot').forEach(item => {
-				item.classList.remove("slotActive");
-			});
-			event.target.classList.add("slotActive");
+      const deviceSlotIndex = parseInt(event.target.getAttribute("data-slot-index"));
+      const parentDeviceIndex = parseInt(event.target.getAttribute("data-parent-device-index"));
 
-			document.querySelectorAll('.deviceSlotDevice').forEach(item => {
-				item.remove();
-			});
+      bitwig.localState[1] = parentDeviceIndex;
+      bitwig.localState[2] = deviceSlotIndex;
+      bitwig.localState[3] = 0;
+      console.log("test begin");
+      logLocalState();
+      console.log("test end");
 
-			var deviceSlotIndex = parseInt(event.target.getAttribute("data-slot-index"));
-			var parentDeviceIndex = parseInt(event.target.getAttribute("data-parent-device-index"));
+      port.send({
+        address: "/track",
+        args: bitwig.localState
+      });
 
-			bitwig.localState[1] = parentDeviceIndex;
-			bitwig.localState[2] = deviceSlotIndex;
-			bitwig.localState[3] = 0;
-			console.log("test begin");
-			console.log(bitwig.localState[0]);
-			console.log(bitwig.localState[1]);
-			console.log(bitwig.localState[2]);
-			console.log(bitwig.localState[3]);
-			console.log("test end");
+    });
+  });
 
-			// console.log("deviceSlotName is " + deviceSlotName );
-			port.send({
-				address: "/track",
-				args: bitwig.localState
-			});
+  document.querySelectorAll('.instr').forEach(item => {
+    item.addEventListener('click', event => {
 
-		});
-	});
+      document.querySelectorAll('.instr').forEach(item => {
+        item.classList.remove("instrActive");
+      });
+      event.target.classList.add("instrActive");
 
-	document.querySelectorAll('.instr').forEach(item => {
-		item.addEventListener('click', event => {
+      const oscArgs = [];
+      oscArgs[0] = parseInt(event.target.getAttribute("data-instr-index"));
 
-			document.querySelectorAll('.instr').forEach(item => {
-				item.classList.remove("instrActive");
-			});
-			event.target.classList.add("instrActive");
+      port.send({
+        address: "/device/instrument/select",
+        args: oscArgs
+      });
 
-			var oscArgs = [];
-			oscArgs[0] = parseInt(event.target.getAttribute("data-instr-index"));
-
-			port.send({
-				address: "/device/instrument/select",
-				args: oscArgs
-			});
-
-		});
-	});
+    });
+  });
 
 };
 
+bitwig.renderSlotDevices = function (oscBundle) {
+  console.log(oscBundle);
+  // const deviceSlotDevicesReversed = oscBundle.packets;
+  const deviceSlotDevices = oscBundle.packets;
+  console.log(deviceSlotDevices);
 
-bitwig.renderSlotDevices = function(oscBundle) {
+  document.querySelectorAll('.deviceSlotDevice').forEach(item => {
+    item.remove();
+  });
 
-	console.log(oscBundle);
-	// var deviceSlotDevicesReversed = oscBundle.packets;
-	var deviceSlotDevices = oscBundle.packets;
-	console.log(deviceSlotDevices);
+  deviceSlotDevices.forEach(function (value, index) {
 
-	document.querySelectorAll('.deviceSlotDevice').forEach(item => {
-		item.remove();
-	});
+    // when there are no device slot devices the array is empty
+    if (deviceSlotDevices[index].args[0] == null) {
+      return;
+    }
 
-	deviceSlotDevices.forEach(function(value, index) {
+    const isActive = deviceSlotDevices[index].args[1];
+    const slotDevice = {
+      name: deviceSlotDevices[index].args[0],
+      index: index
+    };
 
-		// when there are no device slot devices the array is empty
-		if (deviceSlotDevices[index].args[0] == null)
-			return;
-
-		var isActive = deviceSlotDevices[index].args[1];
-
-		const slotDevice = {
-			name: deviceSlotDevices[index].args[0],
-			index: index
-		};
-
-		const markupSlotDevice = `
+    const markupSlotDevice = `
 		<button class="deviceSlotDevice${isActive ? ' slotDeviceActive' : ''}" data-slot-device="${slotDevice.index}">
 			${slotDevice.name}
 		</button>
 		`;
 
-		var slotActive = document.querySelector(".slotActive");
+    const slotActive = document.querySelector(".slotActive");
+    slotActive.parentElement.insertAdjacentHTML("beforeend", markupSlotDevice);
+  });
 
-		slotActive.parentElement.insertAdjacentHTML("beforeend", markupSlotDevice);
+  document.querySelectorAll('.deviceSlotDevice').forEach(item => {
+    item.addEventListener('click', event => {
 
-	});
+      document.querySelectorAll('.deviceSlotDevice').forEach(item => {
+        item.classList.remove("deviceActive");
+      });
+      document.querySelectorAll('.deviceSlot').forEach(item => {
+        item.classList.remove("slotDeviceActive");
+      });
+      // event.target.classList.add("slotDeviceActive");
 
-	document.querySelectorAll('.deviceSlotDevice').forEach(item => {
-		item.addEventListener('click', event => {
+      const slotDeviceIndex = parseInt(event.target.getAttribute("data-slot-device"));
+      bitwig.localState[3] = slotDeviceIndex;
 
-			document.querySelectorAll('.deviceSlotDevice').forEach(item => {
-				item.classList.remove("deviceActive");
-			});
-			document.querySelectorAll('.deviceSlot').forEach(item => {
-				item.classList.remove("slotDeviceActive");
-			});
-			// event.target.classList.add("slotDeviceActive");
+      console.log("sending SLOT DEVICE");
+      logLocalState();
 
-			var slotDeviceIndex = parseInt(event.target.getAttribute("data-slot-device"));
-
-			bitwig.localState[3] = slotDeviceIndex;
-
-			console.log("sending SLOT DEVICE");
-			console.log(bitwig.localState[0]);
-			console.log(bitwig.localState[1]);
-			console.log(bitwig.localState[2]);
-			console.log(bitwig.localState[3]);
-
-			// console.log("deviceSlotName is " + deviceSlotName );
-			port.send({
-				address: "/track",
-				args: bitwig.localState
-			});
-
-		});
-	});
+      port.send({
+        address: "/track",
+        args: bitwig.localState
+      });
+    });
+  });
 
 };
 
-bitwig.renderRemoteControls = function(oscBundle) {
+bitwig.renderRemoteControls = function (oscBundle) {
+  let isActive = false;
+  document.querySelectorAll('#bwRemoteControls button').forEach(item => {
+    item.remove();
+  });
 
-	var isActive = false;
+  const pages = oscBundle.packets;
+  console.log(pages);
 
-	document.querySelectorAll('#bwRemoteControls button').forEach(item => {
-		item.remove();
-	});
+  const bwRemoteControlsEl = document.querySelector("#bwRemoteControls");
+  if (pages.length > 6) {
+    bwRemoteControlsEl.style.borderBottom = '5px solid #6e6e6e';
+  } else {
+    bwRemoteControlsEl.style.borderBottom = 'none';
+  }
 
-	var pages = oscBundle.packets;
-	console.log(pages);
+  pages.forEach(function (value, index) {
 
-	var bwRemoteControlsEl = document.querySelector("#bwRemoteControls");
-	if (pages.length > 6) {
-		bwRemoteControlsEl.style.borderBottom = '5px solid #6e6e6e';
-	} else {
-		bwRemoteControlsEl.style.borderBottom = 'none';
-	}
+    const currentPage = value.args;
+    isActive = currentPage[1];
 
-	pages.forEach(function(value, index) {
+    const page = {
+      name: currentPage[0],
+      index: index
+    };
 
-		var currentPage = value.args;
-		isActive = currentPage[1];
-
-		const page = {
-			name: currentPage[0],
-			index: index
-		};
-
-		const markupPage = `
+    const markupPage = `
 		<button class="${isActive ? 'pageActive' : ''}" data-page="${page.index}">
 			${page.name}
 		</button>
 		`;
 
-		document.querySelector("#bwRemoteControls").insertAdjacentHTML("beforeend", markupPage);
+    document.querySelector("#bwRemoteControls").insertAdjacentHTML("beforeend", markupPage);
+  });
 
-	});
+  document.querySelectorAll('#bwRemoteControls button').forEach(item => {
+    item.addEventListener('click', event => {
 
-	document.querySelectorAll('#bwRemoteControls button').forEach(item => {
-		item.addEventListener('click', event => {
+      document.querySelectorAll('#bwRemoteControls button').forEach(item => {
+        item.classList.remove("pageActive");
+      });
+      event.target.classList.add("pageActive");
 
-			document.querySelectorAll('#bwRemoteControls button').forEach(item => {
-				item.classList.remove("pageActive");
-			});
-			event.target.classList.add("pageActive");
+      const selectedPage = parseInt(event.target.getAttribute("data-page"));
+      port.send({
+        address: "/remote-controls/select",
+        args: selectedPage
+      });
 
-			var selectedPage = parseInt(event.target.getAttribute("data-page"));
-			port.send({
-				address: "/remote-controls/select",
-				args: selectedPage
-			});
-
-		});
-	});
+    });
+  });
 };
 
-bitwig.renderTempo = function(oscMessage) {
+bitwig.renderTempo = function (oscMessage) {
   document.querySelector("#tempoDisplay").value = oscMessage;
 }
 
-bitwig.initControls = function(oscMessage) {
+const logLocalState = function() {
+  console.log(bitwig.localState[0]);
+  console.log(bitwig.localState[1]);
+  console.log(bitwig.localState[2]);
+  console.log(bitwig.localState[3]);
+}
+
+bitwig.initControls = function () {
 
   setTimeout(() => {
     getTempo();
     getMetronome();
   }, 100);
 
-	document.querySelector("#pDevices").addEventListener('click', event => {
-		console.log("pDevices pressed");
-		var banana = "yellow";
-		port.send({
-			address: "/panel/devices",
-			args: banana
-		});
-	});
+  document.querySelector("#pDevices").addEventListener('click', event => {
+    console.log("pDevices pressed");
+    const placeholder = "yellow";
+    port.send({
+      address: "/panel/devices",
+      args: placeholder
+    });
+  });
 
-	document.querySelector("#pNotes").addEventListener('click', event => {
-		console.log("pNotes pressed");
-		var banana = "red";
-		port.send({
-			address: "/panel/notes",
-			args: banana
-		});
-	});
+  document.querySelector("#pNotes").addEventListener('click', event => {
+    console.log("pNotes pressed");
+    const placeholder = "red";
+    port.send({
+      address: "/panel/notes",
+      args: placeholder
+    });
+  });
 
-	document.querySelector("#pMeter").addEventListener('click', event => {
-		console.log("pMeter pressed");
-		var banana = "green";
-		port.send({
-			address: "/panel/meter",
-			args: banana
-		});
-	});
+  document.querySelector("#pMeter").addEventListener('click', event => {
+    console.log("pMeter pressed");
+    const placeholder = "green";
+    port.send({
+      address: "/panel/meter",
+      args: placeholder
+    });
+  });
 
-	document.querySelector("#pIo").addEventListener('click', event => {
-		console.log("pIo pressed");
-		var banana = "purple";
-		port.send({
-			address: "/panel/io",
-			args: banana
-		});
-	});
+  document.querySelector("#pIo").addEventListener('click', event => {
+    console.log("pIo pressed");
+    const placeholder = "purple";
+    port.send({
+      address: "/panel/io",
+      args: placeholder
+    });
+  });
 
-	document.querySelector("#pInspector").addEventListener('click', event => {
-		console.log("pInspector pressed");
-		var banana = "cyan";
-		port.send({
-			address: "/panel/inspector",
-			args: banana
-		});
-	});
+  document.querySelector("#pInspector").addEventListener('click', event => {
+    console.log("pInspector pressed");
+    const placeholder = "cyan";
+    port.send({
+      address: "/panel/inspector",
+      args: placeholder
+    });
+  });
 
-	document.querySelector("#dToggle").addEventListener('click', event => {
-		console.log("dToggle pressed");
-		var banana = "cyan";
-		port.send({
-			address: "/device/toggle",
-			args: banana
-		});
-	});
+  document.querySelector("#dToggle").addEventListener('click', event => {
+    console.log("dToggle pressed");
+    const placeholder = "cyan";
+    port.send({
+      address: "/device/toggle",
+      args: placeholder
+    });
+  });
 
-	document.querySelector("#dDetail").addEventListener('click', event => {
-		console.log("dDetail pressed");
-		var banana = "magenta";
-		port.send({
-			address: "/device/detail",
-			args: banana
-		});
-	});
+  document.querySelector("#dDetail").addEventListener('click', event => {
+    console.log("dDetail pressed");
+    const placeholder = "magenta";
+    port.send({
+      address: "/device/detail",
+      args: placeholder
+    });
+  });
 
-	document.querySelector("#dExpanded").addEventListener('click', event => {
-		console.log("dExpanded pressed");
-		var banana = "black";
-		port.send({
-			address: "/device/expanded",
-			args: banana
-		});
-	});
+  document.querySelector("#dExpanded").addEventListener('click', event => {
+    console.log("dExpanded pressed");
+    const placeholder = "black";
+    port.send({
+      address: "/device/expanded",
+      args: placeholder
+    });
+  });
 
-	document.querySelector("#dRemoteControls").addEventListener('click', event => {
-		console.log("dRemoteControls pressed");
-		var banana = "grey";
-		port.send({
-			address: "/device/remote-controls",
-			args: banana
-		});
-	});
+  document.querySelector("#dRemoteControls").addEventListener('click', event => {
+    console.log("dRemoteControls pressed");
+    const placeholder = "grey";
+    port.send({
+      address: "/device/remote-controls",
+      args: placeholder
+    });
+  });
 
-	document.querySelector("#aPlay").addEventListener('click', event => {
-		console.log("aPlay pressed");
-		var banana = "metal";
-		port.send({
-			address: "/application/play",
-			args: banana
-		});
-	});
+  document.querySelector("#aPlay").addEventListener('click', event => {
+    console.log("aPlay pressed");
+    const placeholder = "metal";
+    port.send({
+      address: "/application/play",
+      args: placeholder
+    });
+  });
 
-	document.querySelector("#tempoDisplay").addEventListener('input', event => {
-		console.log("tempo value updated");
-		sendTempo(event.target.value, true);
-	});
+  document.querySelector("#tempoDisplay").addEventListener('input', event => {
+    console.log("tempo value updated");
+    sendTempo(event.target.value, true);
+  });
 
   document.querySelector("#metronome").addEventListener('click', event => {
-		console.log("metronome pressed");
-		var banana = "cyan";
-		port.send({
-			address: "/metronome/toggle",
-			args: banana
-		});
-	});
-
+    console.log("metronome pressed");
+    const placeholder = "cyan";
+    port.send({
+      address: "/metronome/toggle",
+      args: placeholder
+    });
+  });
 };
 
 port.open();
