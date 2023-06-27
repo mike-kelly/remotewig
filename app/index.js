@@ -2,37 +2,19 @@
 //  Bi-Directional OSC messaging Websocket <-> UDP
 //--------------------------------------------------
 const osc = require("osc");
-const path = require("node:path");
+const path = require("path");
 const WebSocket = require("ws");
 const connect = require('connect');
 const serveStatic = require('serve-static');
+const os = require('os');
 const WEB_UI_PORT = 8888;
 
 // WEB_SOCKET_PORT value MUST match that of variable of same name in web/assets/remotewig.js
 const WEB_SOCKET_PORT = 8089;
 
-const getHostIpAddresses = function() {
-  const ipAddresses = getIPAddresses();
-  ipAddresses.forEach(function (address) {
-    console.log(`  Host: ${address}, Port: ${udp.options.localPort}`);
-  });
-}
-
-connect()
-  .use(serveStatic(path.resolve(__dirname, 'web')))
-  .listen({ port: WEB_UI_PORT }, () => {
-    console.log("\n");
-    console.log('Open or refresh the following web page to control Bitwig remotely:\n');
-    const ipAddresses = getIPAddresses();
-    ipAddresses.forEach(function (address) {
-      console.log(`http://${address}:${WEB_UI_PORT}\n`);
-    });
-  })
-
-const getIPAddresses = function () {
-  const os = require("os"),
-    interfaces = os.networkInterfaces(),
-    ipAddresses = [];
+const getExternalIPAddresses = function () {
+  const interfaces = os.networkInterfaces(),
+        ipAddresses = [];
 
   for (const deviceName in interfaces) {
     const addresses = interfaces[deviceName];
@@ -49,6 +31,17 @@ const getIPAddresses = function () {
   return ipAddresses;
 };
 
+connect()
+  .use(serveStatic(path.resolve(__dirname, 'web')))
+  .listen({ port: WEB_UI_PORT }, () => {
+    console.log("\n");
+    console.log('Open or refresh the following web page to control Bitwig remotely:\n');
+    const ipAddresses = getExternalIPAddresses();
+    ipAddresses.forEach(function (address) {
+      console.log(`http://${address}:${WEB_UI_PORT}\n`);
+    });
+  })
+
 const udp = new osc.UDPPort({
   localAddress: "0.0.0.0",
   localPort: 7400,
@@ -58,7 +51,7 @@ const udp = new osc.UDPPort({
 });
 
 udp.on("ready", function () {
-  const ipAddresses = getIPAddresses();
+  const ipAddresses = getExternalIPAddresses();
   console.log("Listening for OSC over UDP:");
   ipAddresses.forEach(function (address) {
     console.log(`  Host: ${address}, Port: ${udp.options.localPort}`);

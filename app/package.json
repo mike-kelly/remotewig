@@ -1,5 +1,11 @@
 {
 	"name": "remotewig",
+	"scripts": {
+		"setup": "node setup.js",
+		"serve": "node index.js",
+		"dev": "vite",
+		"build": "pkg . --targets node18-macos-x64"
+	},
 	"bin": "index.js",
 	"pkg": {
 		"scripts": [

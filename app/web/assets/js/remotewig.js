@@ -1,6 +1,6 @@
 const bitwig = {};
-const WEB_SOCKET_ADDRESS = '127.0.0.1';
 
+// WEB_SOCKET_ADDRESS is defined in websocketIP.js
 // WEB_SOCKET_PORT value MUST match that of variable of same name in app/index.js
 const WEB_SOCKET_PORT = 8089;
 
