@@ -12,16 +12,26 @@
 			"web/***/**/*"
 		]
 	},
-	"version": "0.1",
+	"version": "0.2",
 	"description": "remotewig is a bridge between a web browser and Bitwig.",
 	"author": "J28",
 	"homepage": "http://stoyanvasilev.me/",
+	"contributors" : [
+		{
+			"name" : "J28",
+			"url" : "http://stoyanvasilev.me"
+		},
+		{
+			"name" : "Mike Kelly",
+			"url" : "https://mikekelly.org"
+		}
+	],
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/j28/bitwig-remote.git"
+		"url": "git://github.com/mike-kelly/bitwig-remote.git"
 	},
 	"readmeFilename": "README.md",
-	"bugs": "https://github.com/j28/bitwig-remote/issues",
+	"bugs": "https://github.com/mike-kelly/bitwig-remote/issues",
 	"license": "(MIT OR GPL-2.0)",
 	"keywords": [
 		"Open Sound Control",
@@ -30,8 +40,8 @@
 	],
 	"dependencies": {
 		"connect": "^3.7.0",
-		"osc": "2.4.0",
-		"serve-static": "^1.14.1",
-		"ws": "7.2.1"
+		"osc": "^2.4.4",
+		"serve-static": "^1.15.0",
+		"ws": "^8.13.0"
 	}
 }

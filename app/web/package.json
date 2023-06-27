@@ -3,6 +3,6 @@
 	"version": "0.1",
 	"ignore": [],
 	"dependencies": {
-		"osc": "2.4.0"
+		"osc": "^2.4.4"
 	}
 }
