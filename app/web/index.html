@@ -1,79 +1,76 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>Bitwig Remote</title>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-<meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="apple-touch-icon" sizes="180x180" href="assets/images/bitwig-192.png">
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" type="text/css" media="all" href="assets/css/remotewig.css"></link>
-<script src="node_modules/osc/dist/osc-browser.min.js"></script>
-<script src="assets/js/remotewig.js"></script>
-<!-- <script src="assets/js/live.js"></script> -->
-</head>
+<html lang="en">
+  <head>
+    <title>Bitwig Remote</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/images/bitwig-192.png">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" type="text/css" media="all" href="assets/css/remotewig.css">
+    <script src="node_modules/osc/dist/osc-browser.min.js"></script>
+    <script src="assets/js/remotewig.js"></script>
+  </head>
 
-<body>
+  <body>
 
-<div id="tracks">
-</div>
+    <div id="tracks">
+    </div>
 
-<div id="bwRemoteControls">
-</div>
+    <div id="bwRemoteControls">
+    </div>
 
-<div id="bwSelector">
-	<div id="currentTrack">
-	</div>
-	<div id="devices">
-	</div>
-</div>
+    <div id="bwSelector">
+        <div id="currentTrack">
+        </div>
+        <div id="devices">
+        </div>
+    </div>
 
-<div id="bwControls">
+    <div id="bwControls">
 
-  <div id="messageArea">
-    <div id="message">Select a track</div>
-    <div class="inline-text">Tempo</div>
-    <button id="tempoMinusTen" class="msg-button" onclick="sendTempo(-10)">-10</button>
-    <button id="tempoMinusOne" class="msg-button" onclick="sendTempo(-1)">-1</button>
-    <input id="tempoDisplay" class="msg-button" type="text" value="100"></input>
-    <button id="tempoPlusOne" class="msg-button" onclick="sendTempo(1)">+1</button>
-    <button id="tempoPlusTen" class="msg-button" onclick="sendTempo(10)">+10</button>
-    <button id="butSend" class="msg-button" onclick="sendManual()">Send OSC</button>
-    <button id="metronome" class="msg-button">Metronome</button>
-  </div>
+      <div id="messageArea">
+        <div id="message">Select a track</div>
+        <label id="tempoLabel" for="tempoDisplay">Tempo</label>
+        <button id="tempoMinusTen" class="msg-button" onclick="sendTempo(-10)">-10</button>
+        <button id="tempoMinusOne" class="msg-button" onclick="sendTempo(-1)">-1</button>
+        <input id="tempoDisplay" class="msg-button" type="text" value="100">
+        <button id="tempoPlusOne" class="msg-button" onclick="sendTempo(1)">+1</button>
+        <button id="tempoPlusTen" class="msg-button" onclick="sendTempo(10)">+10</button>
+        <button id="butSend" class="msg-button" onclick="sendManual()">Send OSC</button>
+        <button id="metronome" class="msg-button">Metronome</button>
+      </div>
 
-  <div id="toggles"> 
-    <button id="pDevices">Devices</button>
-    <button id="pNotes">Notes</button>
-    <button id="pInspector">Inspector</button>
-    <button id="pMeter">Meter</button>
-    <button id="pIo">IO</button>
+      <div id="toggles">
+        <button id="pDevices">Devices</button>
+        <button id="pNotes">Notes</button>
+        <button id="pInspector">Inspector</button>
+        <button id="pMeter">Meter</button>
+        <button id="pIo">IO</button>
 
-    <button id="dToggle">Enabled</button>
-    <button id="dDetail">Detail</button>
-    <button id="dExpanded">Expanded</button>
-    <button id="dRemoteControls">Remote Controls</button>
+        <button id="dToggle">Enabled</button>
+        <button id="dDetail">Detail</button>
+        <button id="dExpanded">Expanded</button>
+        <button id="dRemoteControls">Remote Controls</button>
 
-    <button id="aPlay">
-      <svg version="1.1" 
-        id="Capa_1" 
-        xmlns="http://www.w3.org/2000/svg" 
-        xmlns:xlink="http://www.w3.org/1999/xlink" 
-        x="0px" 
-        y="0px" 
-        viewBox="0 0 477.886 477.886" 
-        style="enable-background:new 0 0 477.886 477.886;" 
-        xml:space="preserve">
-        <g>
-          <g>
-            <path d="M476.091,231.332c-1.654-3.318-4.343-6.008-7.662-7.662L24.695,1.804C16.264-2.41,6.013,1.01,1.8,9.442c-1.185,2.371-1.801,4.986-1.8,7.637v443.733c-0.004,9.426,7.633,17.07,17.059,17.075c2.651,0.001,5.266-0.615,7.637-1.8L468.429,254.22C476.865,250.015,480.295,239.768,476.091,231.332z"/>
-          </g>
-        </g>
-      </svg>
-    </button>
-  </div>
+        <button id="aPlay">
+          <svg id="Capa_1"
+               xmlns="http://www.w3.org/2000/svg"
+               x="0px"
+               y="0px"
+               viewBox="0 0 477.886 477.886"
+               style="enable-background:new 0 0 477.886 477.886;"
+               xml:space="preserve">
+              <g>
+                <g>
+                  <path d="M476.091,231.332c-1.654-3.318-4.343-6.008-7.662-7.662L24.695,1.804C16.264-2.41,6.013,1.01,1.8,9.442c-1.185,2.371-1.801,4.986-1.8,7.637v443.733c-0.004,9.426,7.633,17.07,17.059,17.075c2.651,0.001,5.266-0.615,7.637-1.8L468.429,254.22C476.865,250.015,480.295,239.768,476.091,231.332z"/>
+                </g>
+              </g>
+          </svg>
+        </button>
+      </div>
 
-</div>
+    </div>
 
-</body>
+  </body>
 </html>

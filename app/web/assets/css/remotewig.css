@@ -5,7 +5,7 @@ html, body {
 
 body {
 	background-color: #2e2e2e;
-	font-family: Poppins;
+	font-family: Poppins, sans-serif;
 	color: #fff;
 }
 
@@ -28,9 +28,8 @@ button {
 	padding: 0.5em 0.5em 0.75em 0.5em;
 }
 
-.inline-text {
+#tempoLabel {
   padding-left: 12px;
-  display: inline-block;
 }
 
 #messageArea {
@@ -173,8 +172,6 @@ button {
 	float:right;
 	height: calc(100vh - 400px);
 	overflow-y: scroll;
-/*	position:absolute;
-	width:100%;*/
 }
 
 #bwRemoteControls button {
@@ -197,7 +194,7 @@ button {
 	text-align: center;
 	line-height: 80px;
 	color:#fff;
-	font-family: Poppins;
+	font-family: Poppins, sans-serif;
 	font-weight: 800;
 	font-size: 20px;
 	border-bottom: 1px solid #2e2e2e;
@@ -267,8 +264,4 @@ button {
 
 #devices button:active {
 	background-color: #000;
-}
-
-#devices button:nth-child(odd) {
-/*	border-right: 1px solid #2e2e2e;*/
 }
